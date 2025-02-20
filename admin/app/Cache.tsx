@@ -39,8 +39,8 @@ const Cache = () => {
     setIsLoading(true);
     try {
       const response = await cacheGetAll();
-      if (response.length > 0) {
-        setCache(response);
+      if (response?.cache_results?.length > 0) {
+        setCache(response.cache_results);
         toast.success('Cache Fetched');
       } else {
         toast.error('No Cache Found');
