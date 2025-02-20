@@ -27,6 +27,6 @@ Ensure you have the following installed:
 ```sh
 npm run dev
 ```
-This starts the application in development mode with hot reloading.
+
 
 
