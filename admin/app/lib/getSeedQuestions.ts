@@ -1,175 +1,157 @@
 /* eslint-disable prefer-const */
-/* eslint-disable */
-
+ 
 import Cookies from 'js-cookie';
-import { getBaseUrl, getEnvironment } from './utils';
-const env = getEnvironment();
-const seedQuestionsUrl = getBaseUrl(env,'seedQuestions');
-
-const localUrl = (window.location.hostname.includes("localhost")) ? "":"";
-
-
-const API_BASE_URL = 'http://localhost:5000/api';
-
-export const getAllSeedQuestions = async (
-    agent_type: string,
-    page: number = 1,
-    per_page: number = 5,
-    question?: string,
-) => {
-    try {
-        const profileToken = Cookies.get('x-lacp-profile') || '';
-        const secureToken = Cookies.get('x-lacp-secure') || '';
-
-        const body = question 
-            ? { agent_type, question, per_page, page }
-            : { agent_type, per_page, page };
-
-        const res = await fetch(
-            `${API_BASE_URL}/questions?per_page=${per_page}&page=${page}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-lacp-profile': profileToken,
-                    'x-lacp-secure': secureToken
-                },
-                body: JSON.stringify(body),
-            }
-        );
-
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        return await res.json();
-    } catch (error) {
-        console.error('Failed to fetch questions:', error);
-        throw error;
+ 
+export const getAllSeedQuestions = async (agent_type: string, page: number = 1, per_page: number = 5, question?: string,) => {
+    const profileToken = Cookies.get('x-lacp-profile') || '';
+    const secureToken = Cookies.get('x-lacp-secure') || '';
+    const body = JSON.stringify(question ? {
+        "agent_type": agent_type,
+        "question": question,
+        "type": "getAll",
+        "per_page": per_page,
+        "page": page
+ 
+    } : {
+        "agent_type": agent_type,
+        "type": "getAll",
+        "per_page": per_page,
+        "page": page
+    });
+    const res = await fetch(`http://localhost:3001/beta/api/seedQuestions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-lacp-profile': profileToken,
+            'x-lacp-secure': secureToken
+        },
+        body: body,
+ 
+ 
+    })
+ 
+    if (!res.ok) {
+        console.error('Failed to fetch questions:', res.statusText);
+        return [];
     }
-};
-
+ 
+    let data = await res.json();
+    return data;
+}
 export const createSeedQuestion = async (agent_type: string, question: string) => {
-    try {
-        const profileToken = Cookies.get('x-lacp-profile') || '';
-        const secureToken = Cookies.get('x-lacp-secure') || '';
-
-        const res = await fetch(
-            `${API_BASE_URL}/question`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-lacp-profile': profileToken,
-                    'x-lacp-secure': secureToken
-                },
-                body: JSON.stringify({
-                    agent_type,
-                    question,
-                }),
-            }
-        );
-
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        return await res.json();
-    } catch (error) {
-        console.error('Failed to create question:', error);
-        throw error;
+    const profileToken = Cookies.get('x-lacp-profile') || '';
+    const secureToken = Cookies.get('x-lacp-secure') || '';
+    const body = JSON.stringify({
+        "agent_type": agent_type,
+        "question": question,
+        "type": "createQuestion"
+    });
+ 
+    const res = await fetch(`http://localhost:3001/beta/api/seedQuestions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-lacp-profile': profileToken,
+            'x-lacp-secure': secureToken
+        },
+        body: body,
+ 
+ 
+    });
+ 
+    if (!res.ok) {
+        console.error('Failed to fetch questions:', res.statusText);
+        return [];
     }
-};
+ 
+    let data = await res.json();
+ 
+    return data;
+}
 export const updateSeedQuestion = async (agent_type: string, question: string, id: string) => {
     const profileToken = Cookies.get('x-lacp-profile') || '';
     const secureToken = Cookies.get('x-lacp-secure') || '';
-    const authToken = `Bearer ${secureToken}`;
     const body = JSON.stringify({
         "id": id,
         "agent_type": agent_type,
         "question": question,
-       
+        "type": "updateQuestion"
     });
-
-    const res = await fetch(`${localUrl}${seedQuestionsUrl}question`, {
+ 
+    const res = await fetch(`http://localhost:3001/beta/api/seedQuestions`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: authToken,
             'x-lacp-profile': profileToken,
             'x-lacp-secure': secureToken
         },
         body: body,
-
-
+ 
+ 
     });
-
+ 
     if (!res.ok) {
         console.error('Failed to fetch questions:', res.statusText);
         return [];
     }
-
+ 
     let data = await res.json();
-
+ 
     return data;
 }
-
+ 
 export const deleteSeedQuestions = async (agent_type: string, id: string) => {
     const profileToken = Cookies.get('x-lacp-profile') || '';
     const secureToken = Cookies.get('x-lacp-secure') || '';
-    const authToken = `Bearer ${secureToken}`;
     const body = JSON.stringify({
         "id": id,
         "agent_type": agent_type,
- 
+        "type": "deleteQuestion"
     });
-
-    const res = await fetch(`${localUrl}${seedQuestionsUrl}question`, {
-        method: 'DELETE',
+ 
+    const res = await fetch(`http://localhost:3001/beta/api/seedQuestions`, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: authToken,
             'x-lacp-profile': profileToken,
             'x-lacp-secure': secureToken
         },
         body: body,
-
-
+ 
+ 
     });
-
+ 
     if (!res.ok) {
         console.error('Failed to fetch questions:', res.statusText);
         return [];
     }
-
+ 
     let data = await res.json();
-
+ 
     return data;
 }
-
+ 
 export const getAllSuggestionsForSeeds = async () => {
     const profileToken = Cookies.get('x-lacp-profile') || '';
     const secureToken = Cookies.get('x-lacp-secure') || '';
-    const authToken = `Bearer ${secureToken}`;
     const body = JSON.stringify({
-        
+        "type": "getSuggestions",
     });
-    const res = await fetch(`${localUrl}${seedQuestionsUrl}questions`, {
+    const res = await fetch(`http://localhost:3001/beta/api/seedQuestions`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: authToken,
             'x-lacp-profile': profileToken,
             'x-lacp-secure': secureToken
         },
         body: body,
     })
-
+ 
     if (!res.ok) {
         console.error('Failed to fetch questions:', res.statusText);
         return [];
     }
-
+ 
     let data = await res.json();
     return data;
 }
