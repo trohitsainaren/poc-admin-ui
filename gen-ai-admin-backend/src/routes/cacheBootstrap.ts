@@ -9,17 +9,16 @@ const router = express.Router();
 router.post('/', async (req: any, res: any) => {
     const profileToken = GetProfileTokenFromRequest(req);
     const secureToken = GetSecureTokenFromRequest(req);
-    logger.info(secureToken);
     const cacheBootstrapUrl = process.env.DATA_INSIGHTS_CACHE_BOOTSTRAP;
 
     try {
         const { type } = req.body;
- 
+
 
         const clientId = process.env.DATA_INSIGHTS_CLIENT_ID;
         const cogntioUrl = process.env.COGNITO_TOKEN_URL;
         const clientSecret = await getSecret('DATA_INSIGHTS_CLIENT_SECRET');
-        
+
 
         if (!clientId || !cogntioUrl || !clientSecret) {
             const errorMessage = 'Missing required environment variables for customai';
@@ -63,12 +62,12 @@ router.post('/', async (req: any, res: any) => {
         const response = await fetch(url, {
             method,
             headers,
-            body:JSON.stringify(body)
+            body: JSON.stringify(body)
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-           
+
             return res.status(response.status).json({
                 error: 'Cache operation failed',
                 details: errorText
@@ -79,7 +78,7 @@ router.post('/', async (req: any, res: any) => {
         res.status(200).json(responseData);
 
     } catch (error) {
-       
+        logger.error('Error processing cache operation:', error);
         res.status(500).json({
             error: 'Failed to process cache operation',
             details: error instanceof Error ? error.message : 'Unknown error',

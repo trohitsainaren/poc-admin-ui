@@ -5,11 +5,17 @@ import { validateEnvVariables } from "./utils/validateEnv.js";
 import { getSecret } from "./utils/getSecret.js";
 import routes from './routes/index.js';
 import cors from 'cors';
+import { authMiddleware } from "./middleware.js";
 
 const requiredEnvVars = [
     'PORT',
     'NODE_ENV',
     'SECRET_PATH',
+    'GEN_AI_LLM_CLIENT_ID',
+    'COGNITO_TOKEN_URL',
+    'STUDY_ASSISTANT_QUERY_QUESTION_URL',
+    'DATA_INSIGHTS_CLIENT_ID',
+    'DATA_INSIGHTS_CACHE_BOOTSTRAP'
     // Add other required variables here
 ];
 
@@ -40,7 +46,6 @@ if (!clientSecret) {
 }
 else {
     console.log("Client secret retrieved successfully.");
-    console.log("Client secret:", clientSecret);
 }
 
 const corsOptions = {
@@ -51,6 +56,7 @@ const app = express();
 const PORT = getEnvVariable("PORT") || 3000;
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use(beta + '/api', authMiddleware);
 app.use(beta + '/api', routes);
 
 app.listen(PORT, () => {
